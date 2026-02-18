@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>今日のセルフチェック</title>
+
+<style>
+body {
+  font-family: system-ui, sans-serif;
+  background:#f5f7fa;
+  padding:20px;
+}
+
+h1 {
+  text-align:center;
+}
+
+.card {
+  background:#fff;
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+label {
+  display:block;
+  margin:10px 0;
+  font-size:16px;
+}
+
+button {
+  width:100%;
+  padding:12px;
+  font-size:18px;
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+}
+
+.result {
+  margin-top:20px;
+  padding:15px;
+  border-radius:10px;
+  background:#eef2ff;
+}
+</style>
+</head>
+
+<body>
+
+<h1>今日のセルフチェック</h1>
+
+<div class="card">
+
+<label><input type="checkbox"> よく眠れた</label>
+<label><input type="checkbox"> 頭がスッキリ</label>
+<label><input type="checkbox"> イライラしていない</label>
+<label><input type="checkbox"> 体が重くない</label>
+<label><input type="checkbox"> 集中できそう</label>
+
+<button onclick="check()">診断する</button>
+
+<div id="result" class="result" style="display:none"></div>
+
+</div>
+
+<script>
+function check(){
+
+  const count =
+    document.querySelectorAll('input:checked').length;
+
+  let data = {};
+
+  if(count >= 4){
+    data = {
+      level:"C（好調）",
+      do:"改善・学習OK（30分以内）",
+      dont:"詰め込みすぎない"
+    };
+  }
+  else if(count >= 2){
+    data = {
+      level:"B（安定）",
+      do:"通常業務を丁寧に",
+      dont:"深追いしない"
+    };
+  }
+  else{
+    data = {
+      level:"A（疲労）",
+      do:"休憩・省エネ重視",
+      dont:"勉強・無理な挑戦"
+    };
+  }
+
+  const result = `
+  📊 今日の状態：${data.level}<br><br>
+  ✅ すべき事：${data.do}<br>
+  ❌ NG：${data.dont}
+  `;
+
+  const box = document.getElementById("result");
+  box.innerHTML = result;
+  box.style.display = "block";
+}
+</script>
+
+</body>
+</html>
