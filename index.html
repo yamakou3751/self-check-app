@@ -2,110 +2,185 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>今日のセルフチェック</title>
+<title>SCAPJ Ver0.1</title>
 
 <style>
-body {
-  font-family: system-ui, sans-serif;
-  background:#f5f7fa;
+body{
+  font-family: sans-serif;
+  background:#f5f6fa;
+  margin:0;
   padding:20px;
 }
 
-h1 {
+h1{
   text-align:center;
 }
 
-.card {
-  background:#fff;
-  border-radius:12px;
-  padding:20px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-label {
-  display:block;
-  margin:10px 0;
-  font-size:16px;
-}
-
-button {
-  width:100%;
-  padding:12px;
-  font-size:18px;
-  background:#2563eb;
-  color:#fff;
-  border:none;
-  border-radius:8px;
-}
-
-.result {
-  margin-top:20px;
+.card{
+  background:white;
   padding:15px;
   border-radius:10px;
-  background:#eef2ff;
+  margin-bottom:15px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+label{
+  display:block;
+  margin-top:10px;
+}
+
+input, textarea, button{
+  width:100%;
+  padding:8px;
+  margin-top:5px;
+  border-radius:5px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+
+button{
+  background:#4a69bd;
+  color:white;
+  border:none;
+  margin-top:15px;
+}
+
+button:hover{
+  opacity:0.9;
+  cursor:pointer;
+}
+
+.history{
+  font-size:13px;
+  background:#fafafa;
+  padding:10px;
+  border-radius:5px;
+  margin-top:10px;
+  border:1px solid #ddd;
 }
 </style>
 </head>
 
 <body>
 
-<h1>今日のセルフチェック</h1>
+<h1>🧠 SCAPJ Ver0.1</h1>
 
+<!-- ライトチェック -->
 <div class="card">
+<h2>① 今日の簡易チェック</h2>
 
-<label><input type="checkbox"> よく眠れた</label>
-<label><input type="checkbox"> 頭がスッキリ</label>
-<label><input type="checkbox"> イライラしていない</label>
-<label><input type="checkbox"> 体が重くない</label>
-<label><input type="checkbox"> 集中できそう</label>
+<label>😊 気分（1〜5）</label>
+<input type="number" id="mood" min="1" max="5">
 
-<button onclick="check()">診断する</button>
+<label>⚡ 余裕（1〜5）</label>
+<input type="number" id="energy" min="1" max="5">
 
-<div id="result" class="result" style="display:none"></div>
+<label>💤 疲労（1〜5）</label>
+<input type="number" id="fatigue" min="1" max="5">
+
+<label>📝 一言</label>
+<input type="text" id="note">
 
 </div>
 
+<!-- ディープ -->
+<div class="card">
+<h2>② 深掘り（余裕がある日だけ）</h2>
+
+<label>🎯 テーマ</label>
+<input type="text" id="theme">
+
+<label>⚠ 課題</label>
+<textarea id="problem"></textarea>
+
+<label>🌱 良かった点</label>
+<textarea id="good"></textarea>
+
+<label>🔧 改善点</label>
+<textarea id="improve"></textarea>
+
+<label>🚀 明日の目標</label>
+<input type="text" id="goal">
+
+</div>
+
+<button onclick="saveData()">💾 保存する</button>
+
+<!-- 履歴 -->
+<div class="card">
+<h2>📈 最近の記録</h2>
+<div id="history"></div>
+</div>
+
 <script>
-function check(){
 
-  const count =
-    document.querySelectorAll('input:checked').length;
+function saveData(){
 
-  let data = {};
+  const today = new Date().toISOString().slice(0,10);
 
-  if(count >= 4){
-    data = {
-      level:"C（好調）",
-      do:"改善・学習OK（30分以内）",
-      dont:"詰め込みすぎない"
-    };
-  }
-  else if(count >= 2){
-    data = {
-      level:"B（安定）",
-      do:"通常業務を丁寧に",
-      dont:"深追いしない"
-    };
-  }
-  else{
-    data = {
-      level:"A（疲労）",
-      do:"休憩・省エネ重視",
-      dont:"勉強・無理な挑戦"
-    };
-  }
+  const data = {
+    date: today,
 
-  const result = `
-  📊 今日の状態：${data.level}<br><br>
-  ✅ すべき事：${data.do}<br>
-  ❌ NG：${data.dont}
-  `;
+    light:{
+      mood: document.getElementById("mood").value,
+      energy: document.getElementById("energy").value,
+      fatigue: document.getElementById("fatigue").value,
+      note: document.getElementById("note").value
+    },
 
-  const box = document.getElementById("result");
-  box.innerHTML = result;
-  box.style.display = "block";
+    deep:{
+      theme: document.getElementById("theme").value,
+      problem: document.getElementById("problem").value,
+      good: document.getElementById("good").value,
+      improve: document.getElementById("improve").value,
+      goal: document.getElementById("goal").value
+    }
+  };
+
+  let list = JSON.parse(localStorage.getItem("scapj")) || [];
+
+  // 同日データ上書き
+  list = list.filter(d => d.date !== today);
+
+  list.unshift(data);
+
+  localStorage.setItem("scapj", JSON.stringify(list));
+
+  alert("保存しました 👍");
+
+  loadHistory();
 }
+
+
+function loadHistory(){
+
+  const list = JSON.parse(localStorage.getItem("scapj")) || [];
+
+  const area = document.getElementById("history");
+
+  area.innerHTML = "";
+
+  list.slice(0,7).forEach(d=>{
+
+    const div = document.createElement("div");
+    div.className = "history";
+
+    div.innerHTML = `
+    📅 ${d.date}<br>
+    😊${d.light.mood} ⚡${d.light.energy} 💤${d.light.fatigue}<br>
+    📝 ${d.light.note || ""}<br>
+    🎯 ${d.deep.theme || ""}
+    `;
+
+    area.appendChild(div);
+
+  });
+
+}
+
+// 初期表示
+loadHistory();
+
 </script>
 
 </body>
